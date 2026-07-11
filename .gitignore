@@ -1,0 +1,16 @@
+# Common IDE and OS files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+Thumbs.db
+
+# Project-specific ignored files are managed by nested .gitignore files:
+# - azure-blob-frontend/.gitignore
+# - azure-blob-wrapper/.gitignore
+
+# Local Azurite emulator data
+**/azurite-data/
+
