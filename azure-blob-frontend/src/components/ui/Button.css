@@ -1,0 +1,101 @@
+.depot-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: var(--radius-xs);
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  user-select: none;
+}
+
+.depot-btn-sm {
+  font-size: var(--text-xs);
+  padding: 4px 8px;
+  height: 26px;
+}
+
+.depot-btn-md {
+  font-size: var(--text-sm);
+  padding: 6px 12px;
+  height: 32px;
+}
+
+.depot-btn-lg {
+  font-size: var(--text-base);
+  padding: 8px 16px;
+  height: 40px;
+}
+
+/* Primary variant */
+.depot-btn-primary {
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  border: 1px solid var(--color-ink);
+}
+
+.depot-btn-primary:hover:not(:disabled) {
+  background-color: var(--color-ink-secondary);
+  border-color: var(--color-ink-secondary);
+}
+
+/* Secondary variant */
+.depot-btn-secondary {
+  background-color: var(--color-paper-contrast);
+  color: var(--color-ink);
+  border: 1px solid var(--color-border-dark);
+}
+
+.depot-btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-paper-2);
+  border-color: var(--color-ink);
+}
+
+/* Danger variant */
+.depot-btn-danger {
+  background-color: var(--color-danger);
+  color: #FFFFFF;
+  border: 1px solid var(--color-danger);
+}
+
+.depot-btn-danger:hover:not(:disabled) {
+  background-color: #831515;
+  border-color: #831515;
+}
+
+/* Ghost variant */
+.depot-btn-ghost {
+  background-color: transparent;
+  color: var(--color-ink);
+  border: 1px solid transparent;
+}
+
+.depot-btn-ghost:hover:not(:disabled) {
+  background-color: var(--color-paper-2);
+}
+
+.depot-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.depot-btn-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.depot-btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: depot-spin 0.6s linear infinite;
+}
+
+@keyframes depot-spin {
+  to { transform: rotate(360deg); }
+}

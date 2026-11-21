@@ -1,0 +1,119 @@
+.depot-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-xs);
+  background-color: var(--color-paper-contrast);
+}
+
+.depot-manifest-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.depot-manifest-table th {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-paper-2);
+  border-bottom: 1px solid var(--color-border-dark);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.depot-manifest-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.depot-manifest-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.depot-manifest-table tbody tr:hover {
+  background-color: var(--color-paper-2);
+}
+
+.depot-manifest-table tbody tr:hover .col-num {
+  color: var(--color-signal);
+  font-weight: 600;
+}
+
+.depot-manifest-table tbody tr.is-selected {
+  background-color: var(--color-signal-light);
+}
+
+.depot-manifest-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.col-check { width: 34px; }
+.col-num { width: 48px; color: var(--color-muted); }
+.col-glyph { width: 42px; }
+.col-key { max-width: 360px; overflow: hidden; text-overflow: ellipsis; }
+.col-format { width: 80px; color: var(--color-muted); font-size: var(--text-2xs); }
+.col-size { width: 96px; text-align: right; font-size: var(--text-xs); }
+.col-date { width: 140px; color: var(--color-muted); font-size: var(--text-xs); }
+.col-actions { width: 108px; }
+
+.depot-key-dir {
+  color: var(--color-muted-light);
+}
+
+.depot-key-leaf {
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.depot-row-actions {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+}
+
+/* Stacked rows below 720px */
+@media (max-width: 720px) {
+  .depot-table-wrap {
+    border: none;
+    background: transparent;
+  }
+
+  .depot-manifest-table,
+  .depot-manifest-table tbody,
+  .depot-manifest-table tr,
+  .depot-manifest-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .depot-manifest-table thead {
+    display: none;
+  }
+
+  .depot-manifest-table tbody tr {
+    border: 1px solid var(--color-border-dark);
+    border-radius: var(--radius-xs);
+    background: var(--color-paper-contrast);
+    margin-bottom: var(--space-2);
+    padding: var(--space-2);
+    position: relative;
+  }
+
+  .depot-manifest-table td {
+    border: none;
+    padding: 4px var(--space-2);
+  }
+
+  .col-check { position: absolute; top: 8px; right: 8px; width: auto; }
+  .col-num { width: auto; }
+  .col-glyph { position: absolute; top: 40px; left: 8px; width: auto; }
+  .col-key { padding-left: 48px !important; max-width: calc(100% - 60px); }
+  .col-format, .col-size, .col-date { display: inline-block; width: auto; }
+  .col-actions { width: auto; }
+  .depot-row-actions { justify-content: flex-start; }
+}

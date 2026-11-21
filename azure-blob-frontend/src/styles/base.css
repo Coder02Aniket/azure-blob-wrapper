@@ -1,0 +1,137 @@
+@import '@fontsource/archivo/400.css';
+@import '@fontsource/archivo/500.css';
+@import '@fontsource/archivo/600.css';
+@import '@fontsource/archivo/700.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource/ibm-plex-mono/600.css';
+@import './tokens.css';
+
+/* Universal Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Signature top ink rule */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--color-ink);
+  z-index: 9999;
+}
+
+/* Accessible focus styling */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Skip link for accessibility */
+.skip-link {
+  position: fixed;
+  top: -60px;
+  left: var(--space-4);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 10000;
+  border-radius: var(--radius-xs);
+  transition: top 0.15s ease-in-out;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Monospace utility */
+.font-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Dotted leader for ledger stats */
+.dotted-leader {
+  flex: 1;
+  border-bottom: 1px dotted var(--color-border);
+  margin: 0 var(--space-2);
+  position: relative;
+  top: -4px;
+}
+
+/* Respect reduced-motion preferences across all Depot animations. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Standard Hairline Rules */
+.border-b {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.border-t {
+  border-top: 1px solid var(--color-border);
+}
+
+.border-r {
+  border-right: 1px solid var(--color-border);
+}
+
+.border-l {
+  border-left: 1px solid var(--color-border);
+}

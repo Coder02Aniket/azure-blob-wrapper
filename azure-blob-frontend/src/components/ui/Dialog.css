@@ -1,0 +1,48 @@
+.depot-dialog {
+  margin: auto;
+  padding: 0;
+  background-color: var(--color-paper-contrast);
+  color: var(--color-ink);
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  width: 90vw;
+}
+
+.depot-dialog::backdrop {
+  background: rgba(23, 23, 15, 0.45);
+  backdrop-filter: blur(1px);
+}
+
+[data-theme="dark"] .depot-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.depot-dialog-header {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-paper-2);
+}
+
+.depot-dialog-title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.depot-dialog-desc {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  margin-top: var(--space-1);
+}
+
+.depot-dialog-body {
+  padding: var(--space-5);
+}
+
+.depot-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}

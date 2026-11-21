@@ -1,0 +1,67 @@
+.depot-blob-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-3);
+}
+
+.depot-blob-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background-color: var(--color-paper-contrast);
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-xs);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.1s ease, box-shadow 0.1s ease;
+}
+
+.depot-blob-card:hover {
+  border-color: var(--color-ink);
+  box-shadow: var(--shadow-sm);
+}
+
+.depot-blob-card.is-selected {
+  border-color: var(--color-signal);
+  background-color: var(--color-signal-light);
+}
+
+.depot-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.depot-card-num {
+  font-size: var(--text-2xs);
+  color: var(--color-muted);
+}
+
+.depot-blob-card:hover .depot-card-num {
+  color: var(--color-signal);
+  font-weight: 600;
+}
+
+.depot-card-glyph {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-3) 0;
+}
+
+.depot-card-name {
+  font-size: var(--text-xs);
+  color: var(--color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.depot-card-meta {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  color: var(--color-muted);
+}

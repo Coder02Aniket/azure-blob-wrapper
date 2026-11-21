@@ -1,0 +1,122 @@
+.depot-queue {
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-xs);
+  background-color: var(--color-paper-contrast);
+  overflow: hidden;
+}
+
+.depot-queue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-paper-2);
+  border-bottom: 1px solid var(--color-border-dark);
+}
+
+.depot-queue-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.depot-queue-count {
+  font-size: var(--text-2xs);
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  border-radius: 2px;
+  padding: 0 5px;
+}
+
+.depot-queue-clear {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.depot-queue-clear:hover { color: var(--color-ink); }
+
+.depot-queue-list {
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.depot-queue-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.depot-queue-item:last-child { border-bottom: none; }
+
+.depot-queue-glyph { flex-shrink: 0; }
+
+.depot-queue-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.depot-queue-name {
+  font-size: var(--text-xs);
+  color: var(--color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.depot-queue-detail {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--color-muted);
+}
+
+.depot-queue-dot { color: var(--color-muted-light); }
+
+.depot-queue-error-text {
+  color: var(--color-danger);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.depot-queue-progress {
+  height: 3px;
+  background-color: var(--color-paper-3);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.depot-queue-progress span {
+  display: block;
+  height: 100%;
+  background-color: var(--color-signal);
+  transition: width 0.15s ease;
+}
+
+.depot-queue-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.depot-queue-check { color: var(--color-success); }
+
+.depot-queue-done .depot-queue-name { color: var(--color-success); }
+.depot-queue-error .depot-queue-name { color: var(--color-danger); }
+.depot-queue-canceled .depot-queue-name { color: var(--color-muted-light); text-decoration: line-through; }

@@ -1,0 +1,46 @@
+.depot-bulk-bar {
+  position: sticky;
+  top: 3px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  border-radius: var(--radius-xs);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--space-3);
+}
+
+.depot-bulk-count {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.depot-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.depot-bulk-bar .depot-btn-secondary {
+  background-color: transparent;
+  color: var(--color-paper);
+  border-color: var(--color-border-dark);
+}
+
+.depot-bulk-bar .depot-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.depot-bulk-bar .depot-icon-btn-ghost {
+  color: var(--color-paper);
+}
+
+.depot-bulk-bar .depot-icon-btn-ghost:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}

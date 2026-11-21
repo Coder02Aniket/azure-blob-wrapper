@@ -1,0 +1,38 @@
+.depot-drop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(242, 239, 231, 0.92);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .depot-drop-overlay {
+  background-color: rgba(20, 20, 18, 0.92);
+}
+
+.depot-drop-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-12);
+  border: 2px dashed var(--color-signal);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  background-color: var(--color-paper-contrast);
+}
+
+.depot-drop-title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-signal);
+}
+
+.depot-drop-sub {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}

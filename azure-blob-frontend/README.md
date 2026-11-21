@@ -1,73 +1,38 @@
-# React + TypeScript + Vite
+# Depot Ledger (frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript + Vite UI for the Azure Blob wrapper API.
 
-Currently, two official plugins are available:
+## Commands
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bun install          # or npm install
+bun run dev          # http://localhost:5173, proxies /api to 127.0.0.1:8080
+bun run lint
+bun run build        # emits ../../azure-blob-wrapper/src/main/resources/static
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Architecture
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `src/lib/api.ts` — explicit REST/XHR client. Uploads use `XMLHttpRequest` to report progress and support cancel/retry; downloads trigger a browser save.
+- `src/hooks/` — stateful behaviours: theme, session-scoped connection config, toasts, native dialog control, manifest listing/filtering/selection, and the upload queue.
+- `src/components/ui/` — small presentational primitives (buttons, fields, dialog, drawer, toasts).
+- `src/components/layout/` — 248px rail and topbar; collapses to a horizontal bar below 1024px.
+- `src/components/blobs/` — manifest table, card grid, file glyphs, empty/loading/error states, bulk action bar.
+- `src/components/upload/` — intake strip, full-page drop overlay, upload queue with progress.
+- `src/styles/` — Archivo + IBM Plex Mono fonts (self-hosted via Fontsource), design tokens, reset, reduced-motion handling.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Connection configuration
+
+Settings live in the connection drawer (rail link or `,`). Values are saved to `sessionStorage`
+by default. **Remember on this device** is an explicit opt-in that moves them to `localStorage`.
+When no connection string is supplied the backend uses its environment-configured default.
+
+## Keyboard shortcuts
+
+| Key | Action |
+| --- | --- |
+| `/` | Focus key filter |
+| `?` | Show keyboard map |
+| `,` | Open connection settings |
+| `T` | Toggle light/dark theme |
+| `Esc` | Close overlays |

@@ -1,0 +1,98 @@
+:root {
+  /* Depot Ledger Palette (Light default) */
+  --color-paper: #F2EFE7;
+  --color-paper-2: #EAE6DA;
+  --color-paper-3: #E0DBD0;
+  --color-paper-contrast: #FFFFFF;
+  --color-ink: #17170F;
+  --color-ink-secondary: #424036;
+  --color-muted: #6E6C5D;
+  --color-muted-light: #706D5F;
+  --color-border: #D8D4C7;
+  --color-border-dark: #B0ABA0;
+
+  /* Accent & status tokens */
+  --color-signal: #C2410C;
+  --color-signal-light: #FFF7ED;
+  --color-signal-border: #FDBA74;
+  --color-danger: #A31D1D;
+  --color-danger-light: #FEF2F2;
+  --color-danger-border: #FCA5A5;
+  --color-success: #2F6B3A;
+  --color-success-light: #F0FDF4;
+  --color-success-border: #86EFAC;
+  --color-warning: #A16207;
+  --color-warning-light: #FFFBEB;
+  --color-warning-border: #FCD34D;
+  --color-focus: #C2410C;
+
+  /* Typography */
+  --font-sans: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Type scale */
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 17px;
+  --text-lg: 22px;
+  --text-xl: 32px;
+  --text-2xl: 56px;
+
+  /* Spacing (4px system) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radii - crisp industrial ledger */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+
+  /* Shadows - minimal, strict elevation */
+  --shadow-sm: 0 1px 2px rgba(23, 23, 15, 0.05);
+  --shadow-md: 0 4px 12px rgba(23, 23, 15, 0.08);
+  --shadow-lg: 0 12px 28px rgba(23, 23, 15, 0.12);
+
+  /* Layout dimensions */
+  --rail-width: 248px;
+  --header-height: 52px;
+}
+
+[data-theme="dark"] {
+  --color-paper: #141412;
+  --color-paper-2: #1D1C18;
+  --color-paper-3: #262520;
+  --color-paper-contrast: #100F0D;
+  --color-ink: #EDEBE6;
+  --color-ink-secondary: #C4C1B4;
+  --color-muted: #949080;
+  --color-muted-light: #85816F;
+  --color-border: #2E2C24;
+  --color-border-dark: #423F34;
+
+  --color-signal: #EA580C;
+  --color-signal-light: #2A1508;
+  --color-signal-border: #9A3412;
+  --color-danger: #EF4444;
+  --color-danger-light: #2A0E0E;
+  --color-danger-border: #991B1B;
+  --color-success: #4ADE80;
+  --color-success-light: #0B2313;
+  --color-success-border: #166534;
+  --color-warning: #FBBF24;
+  --color-warning-light: #2A2108;
+  --color-warning-border: #854D0E;
+  --color-focus: #EA580C;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.65);
+}
