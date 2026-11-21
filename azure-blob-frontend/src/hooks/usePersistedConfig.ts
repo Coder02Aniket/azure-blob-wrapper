@@ -6,7 +6,7 @@ const REMEMBER_KEY = 'depot_remember_config';
 
 const DEFAULT_CONFIG: BlobConfig = {
   connectionString: '',
-  containerName: 'demo-container',
+  containerName: 'your-container-name',
   remember: false,
 };
 

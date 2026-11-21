@@ -28,7 +28,7 @@ public class BlobStorageService {
     private static final Pattern CONTAINER_NAME_PATTERN =
             Pattern.compile("^[a-z0-9](?!.*--)[a-z0-9-]{1,61}[a-z0-9]$");
 
-    @Value("${azure.storage.container-name:demo-container}")
+    @Value("${azure.storage.container-name:your-container-name}")
     private String containerName;
 
     private final BlobServiceClient blobServiceClient;

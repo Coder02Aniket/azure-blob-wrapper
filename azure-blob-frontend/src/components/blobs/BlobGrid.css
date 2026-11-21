@@ -39,9 +39,25 @@
   color: var(--color-muted);
 }
 
+.depot-card-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
 .depot-blob-card:hover .depot-card-num {
   color: var(--color-signal);
   font-weight: 600;
+}
+
+.depot-card-open {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+  flex: 1;
+  text-align: left;
+  cursor: pointer;
 }
 
 .depot-card-glyph {
@@ -51,6 +67,7 @@
 }
 
 .depot-card-name {
+  display: block;
   font-size: var(--text-xs);
   color: var(--color-ink);
   overflow: hidden;

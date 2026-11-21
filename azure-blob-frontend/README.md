@@ -19,6 +19,7 @@ bun run build        # emits ../../azure-blob-wrapper/src/main/resources/static
 - `src/components/layout/` — 248px rail and topbar; collapses to a horizontal bar below 1024px.
 - `src/components/blobs/` — manifest table, card grid, file glyphs, empty/loading/error states, bulk action bar.
 - `src/components/upload/` — intake strip, full-page drop overlay, upload queue with progress.
+- `src/components/viewers/` — inspection-sheet viewer for images, video, PDF, and text previews.
 - `src/styles/` — Archivo + IBM Plex Mono fonts (self-hosted via Fontsource), design tokens, reset, reduced-motion handling.
 
 ## Connection configuration
@@ -26,6 +27,14 @@ bun run build        # emits ../../azure-blob-wrapper/src/main/resources/static
 Settings live in the connection drawer (rail link or `,`). Values are saved to `sessionStorage`
 by default. **Remember on this device** is an explicit opt-in that moves them to `localStorage`.
 When no connection string is supplied the backend uses its environment-configured default.
+
+## Inline viewers
+
+The eye action in table rows and grid cards, or double-clicking a key/card, opens a full-screen
+inspection sheet. It supports images, video, PDF, and text files (up to 2 MB). Object bytes are
+fetched through the same authenticated API client as downloads and rendered from an object URL,
+which is revoked when the viewer closes. Other formats, oversized text, and failed fetches offer a
+download fallback.
 
 ## Keyboard shortcuts
 

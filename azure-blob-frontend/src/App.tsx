@@ -9,7 +9,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import type { FileCategory, ViewMode, SortField } from './types';
+import type { BlobMetadata, FileCategory, ViewMode, SortField } from './types';
 import { deleteBlob, downloadBlob } from './lib/api';
 import { formatBytes } from './lib/format';
 import { useTheme } from './hooks/useTheme';
@@ -33,6 +33,7 @@ import { ErrorState } from './components/blobs/ErrorState';
 import { NoResults } from './components/blobs/NoResults';
 import { Skeleton } from './components/blobs/Skeleton';
 import { ConnectionDrawer } from './components/settings/ConnectionDrawer';
+import { BlobViewer } from './components/viewers/BlobViewer';
 import { Button } from './components/ui/Button';
 import { Dialog } from './components/ui/Dialog';
 import { SegmentedControl } from './components/ui/SegmentedControl';
@@ -102,6 +103,7 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [previewBlob, setPreviewBlob] = useState<BlobMetadata | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -184,6 +186,10 @@ function App() {
     [config, addToast]
   );
 
+  const handleView = useCallback((blob: BlobMetadata) => {
+    setPreviewBlob(blob);
+  }, []);
+
   const handleCopy = useCallback(
     async (text: string) => {
       try {
@@ -220,6 +226,9 @@ function App() {
     closeDeleteDialog();
     setPendingDelete([]);
     clearSelection();
+    if (previewBlob && pendingDelete.includes(previewBlob.name)) {
+      setPreviewBlob(null);
+    }
     if (succeeded > 0) {
       addToast('Delete complete', `${succeeded} object${succeeded === 1 ? '' : 's'} removed.`, 'success');
       void reload();
@@ -240,6 +249,7 @@ function App() {
         target?.isContentEditable;
 
       if (e.key === 'Escape') {
+        if (previewBlob) setPreviewBlob(null);
         if (isSettingsOpen) setIsSettingsOpen(false);
         return;
       }
@@ -262,7 +272,7 @@ function App() {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [theme, setTheme, openShortcutsDialog, isSettingsOpen]);
+  }, [theme, setTheme, openShortcutsDialog, isSettingsOpen, previewBlob]);
 
   const hasFilters = Boolean(searchQuery.trim()) || category !== 'all';
   const startIndex = (page - 1) * pageSize;
@@ -421,6 +431,7 @@ function App() {
                   onSelectAll={selectAll}
                   allSelected={paginatedBlobs.length > 0 && selectedKeys.size === paginatedBlobs.length}
                   onDownload={handleDownload}
+                  onView={handleView}
                   onDelete={(name) => requestDelete([name])}
                   onCopy={(name) => void handleCopy(name)}
                   sortField={sortField}
@@ -432,6 +443,7 @@ function App() {
                   startIndex={startIndex}
                   selectedKeys={selectedKeys}
                   onToggleSelect={toggleSelect}
+                  onView={handleView}
                   onDownload={handleDownload}
                 />
               )
@@ -506,6 +518,15 @@ function App() {
           <Button variant="primary" onClick={closeShortcutsDialog}>Got it</Button>
         </div>
       </Dialog>
+
+      {previewBlob && (
+        <BlobViewer
+          blob={previewBlob}
+          config={config}
+          onClose={() => setPreviewBlob(null)}
+          onDownload={handleDownload}
+        />
+      )}
 
       <DropOverlay isVisible={isDragging} />
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />

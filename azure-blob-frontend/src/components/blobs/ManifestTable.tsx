@@ -2,7 +2,8 @@ import type { BlobMetadata, SortField } from '../../types';
 import { formatBytes, formatDate, formatIndex, formatKeyParts } from '../../lib/format';
 import { FileGlyph } from './FileGlyph';
 import { IconButton } from '../ui/IconButton';
-import { Download, Trash2, Copy } from 'lucide-react';
+import { Download, Trash2, Copy, Eye } from 'lucide-react';
+import { getViewerKind } from '../../lib/blob';
 import './ManifestTable.css';
 
 export interface ManifestTableProps {
@@ -13,6 +14,7 @@ export interface ManifestTableProps {
   onSelectAll: () => void;
   allSelected: boolean;
   onDownload: (name: string) => void;
+  onView: (blob: BlobMetadata) => void;
   onDelete: (name: string) => void;
   onCopy: (name: string) => void;
   sortField: SortField;
@@ -27,6 +29,7 @@ export function ManifestTable({
   onSelectAll,
   allSelected,
   onDownload,
+  onView,
   onDelete,
   onCopy,
   sortField,
@@ -79,7 +82,15 @@ export function ManifestTable({
                 </td>
                 <td className="col-num font-mono">{formatIndex(startIndex + idx + 1)}</td>
                 <td className="col-glyph"><FileGlyph name={blob.name} contentType={blob.contentType} size="sm" /></td>
-                <td className="col-key font-mono" title={blob.name}>
+                <td
+                  className="col-key font-mono"
+                  title={`${blob.name} — double-click to preview`}
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    if (getViewerKind(blob)) onView(blob);
+                    else onDownload(blob.name);
+                  }}
+                >
                   {parts.dir && <span className="depot-key-dir">{parts.dir}</span>}
                   <span className="depot-key-leaf">{parts.leaf}</span>
                 </td>
@@ -88,6 +99,11 @@ export function ManifestTable({
                 <td className="col-date font-mono">{formatDate(blob.lastModified)}</td>
                 <td className="col-actions">
                   <div className="depot-row-actions">
+                    {getViewerKind(blob) && (
+                      <IconButton label={`Preview ${blob.name}`} variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onView(blob); }}>
+                        <Eye size={14} />
+                      </IconButton>
+                    )}
                     <IconButton label={`Copy key ${blob.name}`} variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onCopy(blob.name); }}>
                       <Copy size={14} />
                     </IconButton>

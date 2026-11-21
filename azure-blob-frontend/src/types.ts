@@ -37,6 +37,8 @@ export interface ToastItem {
 
 export type ViewMode = 'table' | 'grid';
 
+export type ViewerKind = 'image' | 'video' | 'pdf' | 'text';
+
 export type SortField = 'name' | 'size' | 'lastModified';
 export type SortDirection = 'asc' | 'desc';
 

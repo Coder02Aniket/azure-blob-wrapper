@@ -57,7 +57,7 @@ function ConnectionForm({ config, onClose, onSave, onReset, isCustomConfig }: Co
           className="font-mono"
           value={draft.containerName}
           onChange={(e) => setDraft({ ...draft, containerName: e.target.value })}
-          placeholder="demo-container"
+          placeholder="your-container-name"
           autoComplete="off"
         />
       </Field>

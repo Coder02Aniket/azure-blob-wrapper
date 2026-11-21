@@ -34,7 +34,7 @@ Configuration is environment-variable driven. Defaults are suitable for local de
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `AZURE_STORAGE_CONNECTION_STRING` | Azurite development string | Storage account connection string |
-| `AZURE_STORAGE_CONTAINER_NAME` | `demo-container` | Container name used by the API |
+| `AZURE_STORAGE_CONTAINER_NAME` | `your-container-name` | Container name used by the API |
 | `DEPOT_CORS_ALLOWED_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated allowed origins |
 
 Clients may also override the connection string and container per request with the
@@ -98,6 +98,7 @@ npm run lint && npm run build   # equivalent npm commands
 
 - **Upload** — click the intake strip, use the hidden file picker, or drop files anywhere on the page. Multiple files are queued (two concurrent uploads) with progress, cancel, retry, and overwrite warnings. Maximum size is 100 MB per object.
 - **Manifest** — switch between table and grid, filter by key or file type, sort by key/size/modified date, and paginate 100 rows at a time.
+- **Preview** — the eye action (or double-clicking a key/card) opens an inline viewer for images, videos, PDFs, and text-based files. Other formats fall back to download. Text previews over 2 MB are download-only.
 - **Select** — click rows/cards, Shift-click for ranges, or use the header checkbox. Bulk actions copy keys or delete selected objects.
 - **Delete** — always opens a confirmation dialog listing the objects. Deletes run sequentially and report per-object failures.
 - **Settings** — open with the rail link or `,` to set container, connection string, and API endpoint. Credentials are session-scoped unless you opt into remembering them.

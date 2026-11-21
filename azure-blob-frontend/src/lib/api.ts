@@ -89,7 +89,12 @@ export async function fetchBlobs(config?: BlobConfig, signal?: AbortSignal): Pro
   });
 }
 
-export async function downloadBlob(fileName: string, config?: BlobConfig): Promise<void> {
+/** Fetches raw object bytes for inline preview, keeping custom headers intact. */
+export async function fetchBlobForPreview(
+  fileName: string,
+  config?: BlobConfig,
+  signal?: AbortSignal
+): Promise<Blob> {
   const base = getBaseUrl(config);
   const url = `${base}/api/blobs/download?name=${encodeURIComponent(fileName)}`;
 
@@ -98,9 +103,11 @@ export async function downloadBlob(fileName: string, config?: BlobConfig): Promi
     response = await fetch(url, {
       method: 'GET',
       headers: buildHeaders(config),
+      signal,
     });
-  } catch {
-    throw new ApiError(0, 'NetworkError', `Failed to download '${fileName}'. Check network.`);
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') throw err;
+    throw new ApiError(0, 'NetworkError', `Failed to load '${fileName}'. Check network.`);
   }
 
   if (!response.ok) {
@@ -113,11 +120,15 @@ export async function downloadBlob(fileName: string, config?: BlobConfig): Promi
     throw new ApiError(
       response.status,
       errBody?.error || response.statusText,
-      errBody?.message || `Failed to download file (HTTP ${response.status})`
+      errBody?.message || `Failed to load '${fileName}' (HTTP ${response.status})`
     );
   }
 
-  const blob = await response.blob();
+  return response.blob();
+}
+
+export async function downloadBlob(fileName: string, config?: BlobConfig): Promise<void> {
+  const blob = await fetchBlobForPreview(fileName, config);
   const objectUrl = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = objectUrl;

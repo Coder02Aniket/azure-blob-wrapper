@@ -1,4 +1,18 @@
-import type { FileCategory } from '../types';
+import type { BlobMetadata, FileCategory, ViewerKind } from '../types';
+
+const IMAGE_EXTENSIONS = new Set([
+  'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp', 'tiff', 'tif', 'ico', 'avif',
+]);
+
+const VIDEO_EXTENSIONS = new Set([
+  'mp4', 'webm', 'mov', 'm4v', 'ogv', 'ogg', 'mkv', 'avi',
+]);
+
+const TEXT_EXTENSIONS = new Set([
+  'txt', 'md', 'markdown', 'csv', 'tsv', 'json', 'jsonl', 'xml', 'yaml', 'yml',
+  'log', 'js', 'jsx', 'ts', 'tsx', 'java', 'py', 'go', 'rs', 'c', 'h', 'cpp',
+  'sh', 'bash', 'ps1', 'html', 'htm', 'css', 'scss', 'sql', 'ini', 'env', 'rtf',
+]);
 
 export function getFileCategory(name: string, contentType?: string): FileCategory {
   const ext = name.split('.').pop()?.toLowerCase() || '';
@@ -34,6 +48,31 @@ export function getFileCategory(name: string, contentType?: string): FileCategor
   }
 
   return 'other';
+}
+
+/**
+ * Chooses the inline viewer for a blob. Azure often returns
+ * `application/octet-stream`, so the extension is the authoritative fallback.
+ */
+export function getViewerKind(blob: Pick<BlobMetadata, 'name' | 'contentType'>): ViewerKind | null {
+  const ext = blob.name.split('.').pop()?.toLowerCase() || '';
+  const mime = (blob.contentType || '').toLowerCase();
+
+  if (ext === 'pdf' || mime.includes('pdf')) return 'pdf';
+  if (IMAGE_EXTENSIONS.has(ext) || mime.startsWith('image/')) return 'image';
+  if (VIDEO_EXTENSIONS.has(ext) || mime.startsWith('video/')) return 'video';
+  if (
+    TEXT_EXTENSIONS.has(ext) ||
+    mime.startsWith('text/') ||
+    mime.includes('json') ||
+    mime.includes('xml') ||
+    mime.includes('javascript') ||
+    mime.includes('x-www-form-urlencoded')
+  ) {
+    return 'text';
+  }
+
+  return null;
 }
 
 export function getGlyphBadge(name: string): { label: string; ext: string } {
