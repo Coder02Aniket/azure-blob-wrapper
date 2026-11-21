@@ -48,6 +48,12 @@ export function UploadQueue({ items, onCancel, onRetry, onDismiss, onClearComple
                   {item.status === 'error' && 'failed'}
                   {item.status === 'canceled' && 'canceled'}
                 </span>
+                {item.detail && (
+                  <>
+                    <span className="depot-queue-dot">·</span>
+                    <span className="depot-queue-mode">{item.detail}</span>
+                  </>
+                )}
                 {item.error && <span className="depot-queue-error-text" title={item.error}>{item.error}</span>}
               </div>
               {item.status === 'uploading' && (

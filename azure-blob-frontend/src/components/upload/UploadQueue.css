@@ -85,6 +85,11 @@
 
 .depot-queue-dot { color: var(--color-muted-light); }
 
+.depot-queue-mode {
+  letter-spacing: 0.04em;
+  color: var(--color-signal);
+}
+
 .depot-queue-error-text {
   color: var(--color-danger);
   overflow: hidden;

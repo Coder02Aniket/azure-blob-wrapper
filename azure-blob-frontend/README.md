@@ -13,7 +13,7 @@ bun run build        # emits ../../azure-blob-wrapper/src/main/resources/static
 
 ## Architecture
 
-- `src/lib/api.ts` — explicit REST/XHR client. Uploads use `XMLHttpRequest` to report progress and support cancel/retry; downloads trigger a browser save.
+- `src/lib/api.ts` — explicit REST/XHR client. Direct uploads use `XMLHttpRequest` for progress and cancel; files over 8 MB are split into 4 MB Azure block-blob chunks with per-chunk retry and a final commit. Downloads trigger a browser save; preview fetches reuse the same configured client.
 - `src/hooks/` — stateful behaviours: theme, session-scoped connection config, toasts, native dialog control, manifest listing/filtering/selection, and the upload queue.
 - `src/components/ui/` — small presentational primitives (buttons, fields, dialog, drawer, toasts).
 - `src/components/layout/` — 248px rail and topbar; collapses to a horizontal bar below 1024px.

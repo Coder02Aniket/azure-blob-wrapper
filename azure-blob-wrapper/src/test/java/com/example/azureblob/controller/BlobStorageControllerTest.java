@@ -2,6 +2,7 @@ package com.example.azureblob.controller;
 
 import com.example.azureblob.dto.BlobDownload;
 import com.example.azureblob.dto.BlobMetadata;
+import com.example.azureblob.dto.BlockStageResult;
 import com.example.azureblob.dto.UploadResult;
 import com.example.azureblob.exception.BlobNotFoundException;
 import com.example.azureblob.service.BlobStorageService;
@@ -109,6 +110,49 @@ class BlobStorageControllerTest {
                 .andExpect(jsonPath("$.name").value("hello.txt"))
                 .andExpect(jsonPath("$.size").value(11))
                 .andExpect(jsonPath("$.url").value("https://example.com/hello.txt"));
+    }
+
+    @Test
+    void testStageBlock_ReturnsBlockId() throws Exception {
+        MockMultipartFile chunk = new MockMultipartFile(
+                "file", "chunk-0", "application/octet-stream", "chunk bytes".getBytes()
+        );
+        when(blobStorageService.stageBlock(
+                eq("large.bin"), eq("upload-1"), eq(0), any(), eq(11L), isNull(), isNull()
+        )).thenReturn(new BlockStageResult(0, "dXBsb2FkLTEtMDAwMDAwMDA="));
+
+        mockMvc.perform(multipart("/api/blobs/upload/block")
+                        .file(chunk)
+                        .param("name", "large.bin")
+                        .param("uploadId", "upload-1")
+                        .param("index", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.index").value(0))
+                .andExpect(jsonPath("$.blockId").value("dXBsb2FkLTEtMDAwMDAwMDA="));
+    }
+
+    @Test
+    void testCompleteUpload_CommitsBlockList() throws Exception {
+        UploadResult result = new UploadResult("large.bin", "https://example.com/large.bin", 42L);
+        when(blobStorageService.commitBlocks(
+                eq("large.bin"), eq("application/octet-stream"),
+                eq(List.of("block-0", "block-1")), isNull(), isNull()
+        )).thenReturn(result);
+
+        mockMvc.perform(post("/api/blobs/upload/complete")
+                        .param("name", "large.bin")
+                        .param("blockIds", "block-0,block-1")
+                        .param("contentType", "application/octet-stream"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("large.bin"))
+                .andExpect(jsonPath("$.size").value(42));
+    }
+
+    @Test
+    void testCompleteUpload_MissingBlockIds_Returns400() throws Exception {
+        mockMvc.perform(post("/api/blobs/upload/complete").param("name", "large.bin"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test

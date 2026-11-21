@@ -15,6 +15,10 @@ export interface BlobConfig {
 
 export type UploadStatus = 'queued' | 'uploading' | 'done' | 'error' | 'canceled';
 
+export interface UploadAbortHandle {
+  abort: () => void;
+}
+
 export interface UploadItem {
   id: string;
   file: File;
@@ -23,7 +27,8 @@ export interface UploadItem {
   loaded: number;
   total: number;
   error?: string;
-  xhr?: XMLHttpRequest;
+  detail?: string;
+  xhr?: UploadAbortHandle;
 }
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';

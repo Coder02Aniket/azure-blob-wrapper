@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { UploadItem, BlobConfig } from '../types';
-import { uploadBlobWithProgress } from '../lib/api';
+import { shouldUseChunkedUpload, uploadBlobChunked, uploadBlobWithProgress } from '../lib/api';
 import { validateFileSize } from '../lib/validation';
 
 export function useUploadQueue(
@@ -35,6 +35,7 @@ export function useUploadQueue(
           progress: 0,
           loaded: 0,
           total: file.size,
+          detail: shouldUseChunkedUpload(file) ? 'CHUNKED · 4 MB BLOCKS' : 'DIRECT UPLOAD',
         });
       }
 
@@ -87,20 +88,21 @@ export function useUploadQueue(
       isProcessingRef.current = true;
 
       const currentItem = nextItem;
-      const { promise, xhr } = uploadBlobWithProgress(
-        currentItem.file,
-        config,
-        (loaded, total) => {
-          const percent = total > 0 ? Math.round((loaded / total) * 100) : 0;
-          setQueue((prev) =>
-            prev.map((it) =>
-              it.id === currentItem.id
-                ? { ...it, loaded, total, progress: percent }
-                : it
-            )
-          );
-        }
-      );
+      const reportProgress = (loaded: number, total: number, detail?: string) => {
+        const percent = total > 0 ? Math.round((loaded / total) * 100) : 0;
+        setQueue((prev) =>
+          prev.map((it) =>
+            it.id === currentItem.id
+              ? { ...it, loaded, total, progress: percent, detail: detail ?? it.detail }
+              : it
+          )
+        );
+      };
+
+      const transfer = shouldUseChunkedUpload(currentItem.file)
+        ? uploadBlobChunked(currentItem.file, config, reportProgress)
+        : uploadBlobWithProgress(currentItem.file, config, reportProgress);
+      const { promise, xhr } = transfer;
 
       // Mark as uploading
       setQueue((prev) =>

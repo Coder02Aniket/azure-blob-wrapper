@@ -2,6 +2,7 @@ package com.example.azureblob.controller;
 
 import com.example.azureblob.dto.BlobDownload;
 import com.example.azureblob.dto.BlobMetadata;
+import com.example.azureblob.dto.BlockStageResult;
 import com.example.azureblob.dto.UploadResult;
 import com.example.azureblob.service.BlobStorageService;
 import org.springframework.core.io.ByteArrayResource;
@@ -33,6 +34,38 @@ public class BlobStorageController {
             @RequestHeader(value = "X-Azure-Connection-String", required = false) String connectionString,
             @RequestHeader(value = "X-Azure-Container-Name", required = false) String containerName) throws IOException {
         UploadResult result = blobStorageService.uploadFile(file, connectionString, containerName);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Stages one chunk as an Azure block. Chunks may arrive in any order; the client
+     * sends the returned ids in index order when calling /upload/complete.
+     */
+    @PostMapping("/upload/block")
+    public ResponseEntity<BlockStageResult> stageBlock(
+            @RequestParam("file") MultipartFile chunk,
+            @RequestParam("name") String name,
+            @RequestParam("uploadId") String uploadId,
+            @RequestParam("index") int index,
+            @RequestHeader(value = "X-Azure-Connection-String", required = false) String connectionString,
+            @RequestHeader(value = "X-Azure-Container-Name", required = false) String containerName) throws IOException {
+        BlockStageResult result = blobStorageService.stageBlock(
+                name, uploadId, index, chunk.getInputStream(), chunk.getSize(),
+                connectionString, containerName
+        );
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/upload/complete")
+    public ResponseEntity<UploadResult> completeUpload(
+            @RequestParam("name") String name,
+            @RequestParam("blockIds") List<String> blockIds,
+            @RequestParam(value = "contentType", required = false) String contentType,
+            @RequestHeader(value = "X-Azure-Connection-String", required = false) String connectionString,
+            @RequestHeader(value = "X-Azure-Container-Name", required = false) String containerName) {
+        UploadResult result = blobStorageService.commitBlocks(
+                name, contentType, blockIds, connectionString, containerName
+        );
         return ResponseEntity.ok(result);
     }
 

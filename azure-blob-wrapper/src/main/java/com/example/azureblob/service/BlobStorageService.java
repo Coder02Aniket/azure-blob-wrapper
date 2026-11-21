@@ -1,24 +1,33 @@
 package com.example.azureblob.service;
 
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.example.azureblob.dto.BlobDownload;
 import com.example.azureblob.dto.BlobMetadata;
+import com.example.azureblob.dto.BlockStageResult;
 import com.example.azureblob.dto.UploadResult;
 import com.example.azureblob.exception.BlobNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -80,8 +89,79 @@ public class BlobStorageService {
         BlobContainerClient containerClient = getContainerClient(connectionString, dynamicContainerName);
         BlobClient blobClient = containerClient.getBlobClient(originalFilename);
 
-        blobClient.upload(file.getInputStream(), file.getSize(), true);
+        BlobHttpHeaders headers = new BlobHttpHeaders()
+                .setContentType(resolveContentType(originalFilename, file.getContentType()));
+        blobClient.getBlockBlobClient().uploadWithResponse(
+                file.getInputStream(), file.getSize(), headers,
+                null, null, null, null, null, Context.NONE
+        );
         return new UploadResult(originalFilename, blobClient.getBlobUrl(), file.getSize());
+    }
+
+    /**
+     * Azure block IDs must be unique per upload and at most 64 bytes before base64 encoding.
+     * A client-generated upload id plus a zero-padded index satisfies both constraints and
+     * makes a retry of the same chunk overwrite its own staged block.
+     */
+    private static String blockId(String uploadId, int index) {
+        String raw = uploadId + "-" + String.format("%08d", index);
+        return Base64.getEncoder().encodeToString(raw.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static String resolveContentType(String fileName, String supplied) {
+        if (supplied != null && !supplied.isBlank() && !"application/octet-stream".equalsIgnoreCase(supplied.trim())) {
+            return supplied.trim();
+        }
+        return MediaTypeFactory.getMediaType(fileName)
+                .map(MediaType::toString)
+                .orElse("application/octet-stream");
+    }
+
+    public BlockStageResult stageBlock(
+            String name, String uploadId, int index, InputStream data, long length,
+            String connectionString, String dynamicContainerName
+    ) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Blob name is required.");
+        }
+        if (uploadId == null || uploadId.isBlank()) {
+            throw new IllegalArgumentException("Upload id is required.");
+        }
+        if (index < 0) {
+            throw new IllegalArgumentException("Chunk index must be zero or greater.");
+        }
+        if (length <= 0) {
+            throw new IllegalArgumentException("Chunk must not be empty.");
+        }
+
+        BlockBlobClient blockBlobClient = getContainerClient(connectionString, dynamicContainerName)
+                .getBlobClient(name).getBlockBlobClient();
+        String id = blockId(uploadId.trim(), index);
+        blockBlobClient.stageBlock(id, data, length);
+        return new BlockStageResult(index, id);
+    }
+
+    public UploadResult commitBlocks(
+            String name, String suppliedContentType, List<String> blockIds,
+            String connectionString, String dynamicContainerName
+    ) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Blob name is required.");
+        }
+        if (blockIds == null || blockIds.isEmpty()) {
+            throw new IllegalArgumentException("At least one staged block is required.");
+        }
+
+        BlobClient blobClient = getContainerClient(connectionString, dynamicContainerName).getBlobClient(name);
+        BlobHttpHeaders headers = new BlobHttpHeaders()
+                .setContentType(resolveContentType(name, suppliedContentType));
+        blobClient.getBlockBlobClient().commitBlockListWithResponse(
+                blockIds, headers, null, null, null, null, Context.NONE
+        );
+
+        BlobProperties props = blobClient.getProperties();
+        long size = props != null ? props.getBlobSize() : 0L;
+        return new UploadResult(name, blobClient.getBlobUrl(), size);
     }
 
     public BlobDownload downloadFile(String fileName) {

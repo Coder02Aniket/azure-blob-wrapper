@@ -56,9 +56,15 @@ cd azure-blob-wrapper
 | `GET` | `/api/blobs/list` | Returns `BlobMetadata[]` (`name`, `size`, `lastModified`, `contentType`, `etag`) |
 | `GET` | `/api/blobs/download?name=…` | Streams the blob with a RFC 5987 `Content-Disposition` header |
 | `POST` | `/api/blobs/upload` | Multipart `file` field; responds `{ name, url, size }` |
+| `POST` | `/api/blobs/upload/block` | Multipart `file` chunk plus `name`, `uploadId`, `index`; responds `{ index, blockId }` |
+| `POST` | `/api/blobs/upload/complete` | Form fields `name`, `blockIds` (comma-separated, in order), optional `contentType`; commits the block list |
 | `DELETE` | `/api/blobs/delete?name=…` | Deletes the blob and responds `204 No Content` |
 
 Errors are JSON: `{ "status": 404, "error": "BlobNotFound", "message": "…" }`.
+
+Uploads store a real content type from the browser's MIME type, falling back to the file extension
+when none is supplied. This is what lets images, video, PDFs, and text render inline instead of being
+treated as generic downloads. Previously every upload was stored as `application/octet-stream`.
 
 ### Tests
 
@@ -96,7 +102,7 @@ npm run lint && npm run build   # equivalent npm commands
 
 ## Using Depot Ledger
 
-- **Upload** — click the intake strip, use the hidden file picker, or drop files anywhere on the page. Multiple files are queued (two concurrent uploads) with progress, cancel, retry, and overwrite warnings. Maximum size is 100 MB per object.
+- **Upload** — click the intake strip, use the hidden file picker, or drop files anywhere on the page. Multiple files are queued (two concurrent uploads) with progress, cancel, retry, and overwrite warnings. Maximum size is 100 MB per object. Files over 8 MB upload as 4 MB Azure block-blob chunks with per-chunk retry; the queue shows the current chunk number.
 - **Manifest** — switch between table and grid, filter by key or file type, sort by key/size/modified date, and paginate 100 rows at a time.
 - **Preview** — the eye action (or double-clicking a key/card) opens an inline viewer for images, videos, PDFs, and text-based files. Other formats fall back to download. Text previews over 2 MB are download-only.
 - **Select** — click rows/cards, Shift-click for ranges, or use the header checkbox. Bulk actions copy keys or delete selected objects.
