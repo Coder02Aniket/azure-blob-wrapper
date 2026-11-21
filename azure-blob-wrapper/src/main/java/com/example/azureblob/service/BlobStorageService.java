@@ -5,6 +5,11 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.models.BlobProperties;
+import com.example.azureblob.dto.BlobDownload;
+import com.example.azureblob.dto.BlobMetadata;
+import com.example.azureblob.dto.UploadResult;
+import com.example.azureblob.exception.BlobNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,13 +17,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 public class BlobStorageService {
 
-    @Value("${azure.storage.container-name}")
+    private static final Pattern CONTAINER_NAME_PATTERN =
+            Pattern.compile("^[a-z0-9](?!.*--)[a-z0-9-]{1,61}[a-z0-9]$");
+
+    @Value("${azure.storage.container-name:demo-container}")
     private String containerName;
 
     private final BlobServiceClient blobServiceClient;
@@ -28,18 +38,28 @@ public class BlobStorageService {
         this.blobServiceClient = blobServiceClient;
     }
 
-    private BlobContainerClient getContainerClient(String connectionString, String containerName) {
+    public static void validateContainerName(String container) {
+        if (container == null || !CONTAINER_NAME_PATTERN.matcher(container).matches()) {
+            throw new IllegalArgumentException(
+                    "Invalid container name: '" + container + "'. Container names must be 3-63 characters, lowercase letters, numbers, and hyphens (no consecutive hyphens)."
+            );
+        }
+    }
+
+    private BlobContainerClient getContainerClient(String connectionString, String dynamicContainerName) {
         BlobServiceClient client = blobServiceClient;
         if (connectionString != null && !connectionString.trim().isEmpty()) {
             client = new BlobServiceClientBuilder()
-                    .connectionString(connectionString)
+                    .connectionString(connectionString.trim())
                     .buildClient();
         }
-        
-        String container = (containerName != null && !containerName.trim().isEmpty()) 
-                ? containerName 
+
+        String container = (dynamicContainerName != null && !dynamicContainerName.trim().isEmpty())
+                ? dynamicContainerName.trim()
                 : this.containerName;
-                
+
+        validateContainerName(container);
+
         BlobContainerClient containerClient = client.getBlobContainerClient(container);
         if (!containerClient.exists()) {
             containerClient.create();
@@ -47,73 +67,86 @@ public class BlobStorageService {
         return containerClient;
     }
 
-    /**
-     * Upload a file to Azure Blob Storage using default credentials
-     */
-    public String uploadFile(MultipartFile file) throws IOException {
+    public UploadResult uploadFile(MultipartFile file) throws IOException {
         return uploadFile(file, null, null);
     }
 
-    /**
-     * Upload a file to Azure Blob Storage using dynamic credentials
-     */
-    public String uploadFile(MultipartFile file, String connectionString, String containerName) throws IOException {
-        BlobClient blobClient = getContainerClient(connectionString, containerName).getBlobClient(file.getOriginalFilename());
+    public UploadResult uploadFile(MultipartFile file, String connectionString, String dynamicContainerName) throws IOException {
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.trim().isEmpty()) {
+            originalFilename = "unnamed_blob";
+        }
+
+        BlobContainerClient containerClient = getContainerClient(connectionString, dynamicContainerName);
+        BlobClient blobClient = containerClient.getBlobClient(originalFilename);
+
         blobClient.upload(file.getInputStream(), file.getSize(), true);
-        return blobClient.getBlobUrl();
+        return new UploadResult(originalFilename, blobClient.getBlobUrl(), file.getSize());
     }
 
-    /**
-     * Download a file from Azure Blob Storage using default credentials
-     */
-    public byte[] downloadFile(String fileName) {
+    public BlobDownload downloadFile(String fileName) {
         return downloadFile(fileName, null, null);
     }
 
-    /**
-     * Download a file from Azure Blob Storage using dynamic credentials
-     */
-    public byte[] downloadFile(String fileName, String connectionString, String containerName) {
-        BlobClient blobClient = getContainerClient(connectionString, containerName).getBlobClient(fileName);
+    public BlobDownload downloadFile(String fileName, String connectionString, String dynamicContainerName) {
+        BlobClient blobClient = getContainerClient(connectionString, dynamicContainerName).getBlobClient(fileName);
+        if (!blobClient.exists()) {
+            throw new BlobNotFoundException("Blob not found: " + fileName);
+        }
+
+        BlobProperties properties = blobClient.getProperties();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         blobClient.downloadStream(outputStream);
-        return outputStream.toByteArray();
-    }
+        byte[] content = outputStream.toByteArray();
 
-    /**
-     * List all files in the container using default credentials
-     */
-    public List<String> listFiles() {
-        return listFiles(null, null);
-    }
-
-    /**
-     * List all files in the container using dynamic credentials
-     */
-    public List<String> listFiles(String connectionString, String containerName) {
-        List<String> fileNames = new ArrayList<>();
-        for (BlobItem blobItem : getContainerClient(connectionString, containerName).listBlobs()) {
-            fileNames.add(blobItem.getName());
+        String contentType = properties.getContentType();
+        if (contentType == null || contentType.isBlank()) {
+            contentType = "application/octet-stream";
         }
-        return fileNames;
+
+        return new BlobDownload(fileName, content, contentType, content.length);
     }
 
-    /**
-     * Delete a file from Azure Blob Storage using default credentials
-     */
-    public boolean deleteFile(String fileName) {
-        return deleteFile(fileName, null, null);
+    public List<BlobMetadata> listFilesAsMetadata() {
+        return listFilesAsMetadata(null, null);
     }
 
-    /**
-     * Delete a file from Azure Blob Storage using dynamic credentials
-     */
-    public boolean deleteFile(String fileName, String connectionString, String containerName) {
-        BlobClient blobClient = getContainerClient(connectionString, containerName).getBlobClient(fileName);
-        if (blobClient.exists()) {
-            blobClient.delete();
-            return true;
+    public List<BlobMetadata> listFilesAsMetadata(String connectionString, String dynamicContainerName) {
+        BlobContainerClient containerClient = getContainerClient(connectionString, dynamicContainerName);
+        List<BlobMetadata> list = new ArrayList<>();
+        for (BlobItem item : containerClient.listBlobs()) {
+            list.add(toMetadata(item));
         }
-        return false;
+        return list;
+    }
+
+    public void deleteFile(String fileName) {
+        deleteFile(fileName, null, null);
+    }
+
+    public void deleteFile(String fileName, String connectionString, String dynamicContainerName) {
+        BlobClient blobClient = getContainerClient(connectionString, dynamicContainerName).getBlobClient(fileName);
+        if (!blobClient.exists()) {
+            throw new BlobNotFoundException("Blob not found: " + fileName);
+        }
+        blobClient.delete();
+    }
+
+    private static BlobMetadata toMetadata(BlobItem item) {
+        var props = item.getProperties();
+        long size = (props != null && props.getContentLength() != null && props.getContentLength() > 0)
+                ? props.getContentLength()
+                : 0L;
+        Instant lastModified = (props != null && props.getLastModified() != null)
+                ? props.getLastModified().toInstant()
+                : Instant.EPOCH;
+        String contentType = (props != null && props.getContentType() != null && !props.getContentType().isBlank())
+                ? props.getContentType()
+                : "application/octet-stream";
+        String etag = (props != null && props.getETag() != null)
+                ? props.getETag()
+                : "";
+
+        return new BlobMetadata(item.getName(), size, lastModified, contentType, etag);
     }
 }
