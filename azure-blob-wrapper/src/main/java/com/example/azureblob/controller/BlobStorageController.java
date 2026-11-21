@@ -26,9 +26,12 @@ public class BlobStorageController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader(value = "X-Azure-Connection-String", required = false) String connectionString,
+            @RequestHeader(value = "X-Azure-Container-Name", required = false) String containerName) {
         try {
-            String url = blobStorageService.uploadFile(file);
+            String url = blobStorageService.uploadFile(file, connectionString, containerName);
             return ResponseEntity.ok("File uploaded successfully. URL: " + url);
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body("Failed to upload file: " + e.getMessage());
@@ -36,8 +39,11 @@ public class BlobStorageController {
     }
 
     @GetMapping("/download/{fileName}")
-    public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable String fileName) {
-        byte[] data = blobStorageService.downloadFile(fileName);
+    public ResponseEntity<ByteArrayResource> downloadFile(
+            @PathVariable String fileName,
+            @RequestHeader(value = "X-Azure-Connection-String", required = false) String connectionString,
+            @RequestHeader(value = "X-Azure-Container-Name", required = false) String containerName) {
+        byte[] data = blobStorageService.downloadFile(fileName, connectionString, containerName);
         ByteArrayResource resource = new ByteArrayResource(data);
 
         return ResponseEntity.ok()
@@ -48,14 +54,19 @@ public class BlobStorageController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<String>> listFiles() {
-        List<String> files = blobStorageService.listFiles();
+    public ResponseEntity<List<String>> listFiles(
+            @RequestHeader(value = "X-Azure-Connection-String", required = false) String connectionString,
+            @RequestHeader(value = "X-Azure-Container-Name", required = false) String containerName) {
+        List<String> files = blobStorageService.listFiles(connectionString, containerName);
         return ResponseEntity.ok(files);
     }
 
     @DeleteMapping("/delete/{fileName}")
-    public ResponseEntity<String> deleteFile(@PathVariable String fileName) {
-        boolean isDeleted = blobStorageService.deleteFile(fileName);
+    public ResponseEntity<String> deleteFile(
+            @PathVariable String fileName,
+            @RequestHeader(value = "X-Azure-Connection-String", required = false) String connectionString,
+            @RequestHeader(value = "X-Azure-Container-Name", required = false) String containerName) {
+        boolean isDeleted = blobStorageService.deleteFile(fileName, connectionString, containerName);
         if (isDeleted) {
             return ResponseEntity.ok("File deleted successfully.");
         } else {
